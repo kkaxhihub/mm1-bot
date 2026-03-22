@@ -223,10 +223,7 @@ async def on_ready():
 
     await bot.tree.sync()
     print(f"{bot.user} is online!")
-    for guild in bot.guilds:
-       if guild.id != ALLOWED_GUILD:
-           await guild.leave()
-
+                      
 # ---------------- PANEL COMMAND ----------------
 @bot.tree.command(name="panel", description="Send middleman panel")
 async def panel(interaction: discord.Interaction):
@@ -640,10 +637,7 @@ async def verify(interaction: discord.Interaction, user: discord.Member):
         view=view
     )
 
-@bot.event
-async def on_guild_join(guild):
-    if guild.id != ALLOWED_GUILD:
-        await guild.leave()
+           
             
 # ---------------- RUN BOT ----------------
 
