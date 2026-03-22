@@ -628,7 +628,7 @@ async def verify(interaction: discord.Interaction, user: discord.Member):
         color=discord.Color.orange()
     )
 
-    verify_embed.set_footer(text="Powered by Trading Core")
+    verify_embed.set_footer(text="Powered by Liam's Middleman Service")
 
     view = VerifyView(user)
 
