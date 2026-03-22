@@ -208,8 +208,7 @@ class TicketPanel(discord.ui.View):
 @bot.event
 async def on_ready():
     bot.add_view(TicketPanel())
-    bot.add_view(TicketControls())
-    bot.add_view(VerifyView(None))
+    bot.add_view(TicketControls()) 
 
     async with aiosqlite.connect("warns.db") as db:
         await db.execute("""
