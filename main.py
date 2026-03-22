@@ -481,8 +481,9 @@ async def vouch(interaction: discord.Interaction, user: discord.Member, reason: 
 
     # Button view
     class VouchButton(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
+        def __init__(self):
+            super().__init__(timeout=None)
+
         @discord.ui.button(label="See more info", style=discord.ButtonStyle.blurple)
         async def info(self, interaction2: discord.Interaction, button: discord.ui.Button):
 
