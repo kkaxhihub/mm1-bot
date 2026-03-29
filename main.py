@@ -115,7 +115,7 @@ class TicketControls(discord.ui.View):
             color=discord.Color.green()
         )
 
-        embed.set_footer(text="Powered by Liam's Middleman Service")
+        embed.set_footer(text="Powered by Beanie's Bunker")
 
         await interaction.followup.send(embed=embed)
 
