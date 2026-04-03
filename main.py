@@ -68,7 +68,7 @@ async def save_transcript(channel, closer, guild):
         inline=False
     )
 
-    embed.set_footer(text="Powered by Traderie Official")  
+    embed.set_footer(text="Powered by rustynickle40 bot")  
 
     if log_channel:
         await log_channel.send(embed=embed, file=file)
@@ -115,7 +115,7 @@ class TicketControls(discord.ui.View):
             color=discord.Color.green()
         )
 
-        embed.set_footer(text="Powered by Traderie Official")
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
         await interaction.followup.send(embed=embed)
 
@@ -132,7 +132,7 @@ class TicketControls(discord.ui.View):
             color=discord.Color.green()
         )
 
-        embed.set_footer(text="Powered by Traderie Official")
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
         await interaction.response.send_message(embed=embed)
 
@@ -187,7 +187,7 @@ class TicketPanel(discord.ui.View):
             description=welcome_message,
             color=discord.Color.green()
         )
-        embed.set_footer(text="Powered by Traderie Official")
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
         # Send embed + buttons in ticket channel
         await channel.send(
@@ -239,7 +239,7 @@ async def panel(interaction: discord.Interaction):
 
     # Embed for the panel message
     text = (
-        "**Traderie Middleman Service**\n\n"
+        "**rustynickle40 Middleman Service**\n\n"
         "Click the button below to **Request a Middleman**.\n\n"
         "**How it works**\n"
         "• Seller gives item to MM\n"
@@ -253,7 +253,7 @@ async def panel(interaction: discord.Interaction):
         description=text,
         color=discord.Color.green()
     )
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     # Send the panel message with the TicketPanel buttons
     await interaction.channel.send(embed=embed, view=TicketPanel())
@@ -293,7 +293,7 @@ async def middleman(interaction: discord.Interaction):
     )
 
     embed.set_image(url="https://cdn.discordapp.com/attachments/1436674705930063875/1479860750993592530/middleman1_2-1.webp?ex=69ae3bf9&is=69acea79&hm=78e2e3a5379a861858e1c8f7a94504268edc4807585a3d63b95a3411875aa577")
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     await interaction.response.send_message(embed=embed)
 
@@ -332,7 +332,7 @@ async def add(interaction: discord.Interaction, user: discord.Member):
         color=discord.Color.green()
     )
 
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     await interaction.response.send_message(embed=embed)
 
@@ -387,7 +387,7 @@ async def transfer(interaction: discord.Interaction, user: discord.Member):
         color=discord.Color.green()
     )
 
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     await interaction.response.send_message(embed=embed)
 
@@ -410,7 +410,7 @@ async def close(interaction: discord.Interaction):
         color=discord.Color.green()
     )
 
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     await interaction.response.send_message(embed=embed)
 
@@ -447,7 +447,7 @@ async def middleman1(interaction: discord.Interaction):
     )
 
     embed.set_image(url="https://cdn.discordapp.com/attachments/1479495822591656018/1479854700898816111/middleman2_1.webp?ex=69ae3657&is=69ace4d7&hm=4da9678b97798bbb3e2f445931b8e9677da6210f478756484ec52bb66d41aa25")
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     await interaction.response.send_message(embed=embed)
 
@@ -477,7 +477,7 @@ async def vouch(interaction: discord.Interaction, user: discord.Member, reason: 
     embed.add_field(name="Vouched By", value=interaction.user.mention, inline=False)
 
     embed.set_thumbnail(url=user.display_avatar.url)
-    embed.set_footer(text="Powered by Traderie Official")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     # Button view
     class VouchButton(discord.ui.View):
@@ -515,7 +515,7 @@ async def vouch(interaction: discord.Interaction, user: discord.Member, reason: 
             )
 
             details_embed.set_thumbnail(url=user.display_avatar.url)
-            details_embed.set_footer(text="Powered by Traderie Official")
+            details_embed.set_footer(text="Powered by rustynickle40 bot")
 
             await interaction2.response.send_message(embed=details_embed, ephemeral=True)
 
@@ -557,7 +557,7 @@ class VerifyView(discord.ui.View):
             description="✅ You accepted the opportunity.",
             color=discord.Color.green()
         )
-        embed.set_footer(text="Powered by Traderie Official")
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
         await interaction.response.edit_message(embed=embed, view=None)
 
@@ -575,7 +575,7 @@ class VerifyView(discord.ui.View):
             description="❌ You declined the opportunity.",
             color=discord.Color.red()
         )
-        embed.set_footer(text="Powered by Traderie Official")
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
         await interaction.response.edit_message(embed=embed, view=None)
 
@@ -616,7 +616,7 @@ async def verify(interaction: discord.Interaction, user: discord.Member):
         color=discord.Color.green()
     )
 
-    scam_embed.set_footer(text="Powered by Traderie Official")
+    scam_embed.set_footer(text="Powered by rustynickle40 bot")
 
     verify_embed = discord.Embed(
         description=(
@@ -627,7 +627,7 @@ async def verify(interaction: discord.Interaction, user: discord.Member):
         color=discord.Color.orange()
     )
 
-    verify_embed.set_footer(text="Powered by Traderie Official")
+    verify_embed.set_footer(text="Powered by rustynickle40 bot")
 
     view = VerifyView(user)
 
