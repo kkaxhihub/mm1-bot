@@ -15,6 +15,19 @@ VERIFY_ROLE_ID = 1464807750847434980
 MODLOG_CHANNEL_ID= 1490283073248428085
 BAN_ROLE_ID= 1489576232898269314
 HEAD_MOD_ROLE_ID= 1481233232367452191
+HEAD_MM_ROLE_ID = 1456998647253172256
+MM_MANAGER_ROLE_ID = 1465612905331298406
+MODERATOR_ROLE_ID = 1481233180160819261
+HEAD_MOD_ROLE_ID = 1481233232367452191
+SERVER_ADMIN_ROLE_ID = 1481233308334559253
+LEAD_COORD_ROLE_ID = 1481233350814335007
+ADMIN_ROLE_ID = 1481233452589121676
+SUPERVISOR_ROLE_ID = 1481233496646221864
+SUPREME_ROLE_ID = 1481233566535909398
+OPERATIONS_LEAD_ROLE_ID = 1481233639294369873
+CHIEF_LEAD_ROLE_ID = 1481233693308616757
+TEAM_LEAD_ROLE_ID = 1481233734567985172
+PRESIDENT_ROLE_ID = 1481229896092090419
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -970,6 +983,194 @@ async def warn(
                 f"✅ Cleared {removed} warn(s) for {user.mention}.",
                 ephemeral=True
             )           
+
+@bot.tree.command(name="manageroles", description="Advanced role manager")
+@app_commands.describe(
+    target="User",
+    action="Give or remove role",
+    role="Select role",
+    reason="Reason",
+    evidence="Upload proof image"
+)
+@app_commands.choices(action=[
+    app_commands.Choice(name="Give", value="give"),
+    app_commands.Choice(name="Remove", value="remove")
+])
+async def manageroles(
+    interaction: discord.Interaction,
+    target: discord.Member,
+    action: app_commands.Choice[str],
+    role: discord.Role,
+    reason: str,
+    evidence: discord.Attachment
+):
+
+    user_roles = [r.id for r in interaction.user.roles]
+
+    # 📸 Evidence check
+    if not evidence.content_type or not evidence.content_type.startswith("image"):
+        await interaction.response.send_message(
+            "❌ Evidence must be an image.",
+            ephemeral=True
+        )
+        return
+
+    # 🔒 PERMISSION SYSTEM
+
+    allowed_roles = []
+
+# ADMIN
+    if ADMIN_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID
+    ]
+
+# SUPERVISOR
+    if SUPERVISOR_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID
+    ]
+
+# SUPREME
+    if SUPREME_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID,
+            HEAD_MM_ROLE_ID,
+            MM_MANAGER_ROLE_ID,
+            MODERATOR_ROLE_ID,
+            HEAD_MOD_ROLE_ID
+    ]
+
+# OPERATIONS LEAD
+    if OPERATIONS_LEAD_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID,
+            HEAD_MM_ROLE_ID,
+            MM_MANAGER_ROLE_ID,
+            MODERATOR_ROLE_ID,
+            HEAD_MOD_ROLE_ID,
+            SERVER_ADMIN_ROLE_ID,
+            LEAD_COORD_ROLE_ID
+    ]
+
+# CHIEF LEAD
+    if CHIEF_LEAD_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID,
+            HEAD_MM_ROLE_ID,
+            MM_MANAGER_ROLE_ID,
+            MODERATOR_ROLE_ID,
+            HEAD_MOD_ROLE_ID,
+            SERVER_ADMIN_ROLE_ID,
+            LEAD_COORD_ROLE_ID,
+            ADMIN_ROLE_ID,
+            SUPERVISOR_ROLE_ID,
+            SUPREME_ROLE_ID,
+            OPERATIONS_LEAD_ROLE_ID
+    ]
+
+# TEAM LEAD (everything up to Chief Lead)
+    if TEAM_LEAD_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID,
+            HEAD_MM_ROLE_ID,
+            MM_MANAGER_ROLE_ID,
+            MODERATOR_ROLE_ID,
+            HEAD_MOD_ROLE_ID,
+            SERVER_ADMIN_ROLE_ID,
+            LEAD_COORD_ROLE_ID,
+            ADMIN_ROLE_ID,
+            SUPERVISOR_ROLE_ID,
+            SUPREME_ROLE_ID,
+            OPERATIONS_LEAD_ROLE_ID,
+            CHIEF_LEAD_ROLE_ID
+    ]
+
+# PRESIDENT (all roles)
+    if PRESIDENT_ROLE_ID in user_roles:
+        allowed_roles += [
+            MIDDLEMAN_ROLE_ID,
+            HEAD_MM_ROLE_ID,
+            MM_MANAGER_ROLE_ID,
+            MODERATOR_ROLE_ID,
+            HEAD_MOD_ROLE_ID,
+            SERVER_ADMIN_ROLE_ID,
+            LEAD_COORD_ROLE_ID,
+            ADMIN_ROLE_ID,
+            SUPERVISOR_ROLE_ID,
+            SUPREME_ROLE_ID,
+            OPERATIONS_LEAD_ROLE_ID,
+            CHIEF_LEAD_ROLE_ID,
+            TEAM_LEAD_ROLE_ID
+    ]
+
+    else:
+        await interaction.response.send_message(
+            "❌ You don't have permission.",
+            ephemeral=True
+        )
+        return
+
+    # ❌ Restrict role
+    if role.id not in allowed_roles:
+        await interaction.response.send_message(
+            "❌ You cannot manage this role.",
+            ephemeral=True
+        )
+        return
+
+    # 🔄 Perform action
+    try:
+        if action.value == "give":
+            await target.add_roles(role)
+            title = "Role Given ✅"
+            color = discord.Color.green()
+        else:
+            await target.remove_roles(role)
+            title = "Role Removed ❌"
+            color = discord.Color.red()
+
+    except Exception as e:
+        await interaction.response.send_message(
+            f"Error: {e}",
+            ephemeral=True
+        )
+        return
+
+    # 🕒 Time
+    time_now = datetime.now().strftime("%m/%d/%Y, %I:%M:%S %p")
+
+    # 📜 EMBED (MATCHES YOUR IMAGE)
+    embed = discord.Embed(
+        title=title,
+        color=color
+    )
+
+    embed.add_field(name="Actioned By", value=interaction.user.mention, inline=False)
+    embed.add_field(name="Target User", value=target.mention, inline=False)
+    embed.add_field(name="Role", value=role.name, inline=False)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    embed.add_field(name="Time", value=time_now, inline=False)
+
+    embed.add_field(
+        name="Evidence",
+        value=f"[{evidence.filename}]({evidence.url}) (image)",
+        inline=False
+    )
+
+    embed.set_image(url=evidence.url)
+    embed.set_footer(text="Powered by Koodas Trading Camp")
+
+    # 📢 Send to log channel
+    log_channel = interaction.guild.get_channel(MODLOG_CHANNEL_ID)
+    if log_channel:
+        await log_channel.send(embed=embed)
+
+    # ✅ Confirmation
+    await interaction.response.send_message(
+        f"✅ Done for {target.mention}",
+        ephemeral=True
+    )
 
             
 # ---------------- RUN BOT ----------------
