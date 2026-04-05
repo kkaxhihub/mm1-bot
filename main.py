@@ -791,7 +791,7 @@ async def warn(
     reason: str = None
 ):
     # Admin-only check
-    if not any(role.id == HEAD_MOD_ROLE_IDfor role in interaction.user.roles):
+    if not any(role.id == HEAD_MOD_ROLE_ID for role in interaction.user.roles):
         await interaction.response.send_message(
             "❌ You do not have permission to use this command.",
             ephemeral=True
