@@ -875,7 +875,7 @@ async def warn(
                 color=discord.Color.blue()
             )
 
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed) 
 
         # ------------------ DELETE WARN ------------------
         elif action.value == "delwarn":
