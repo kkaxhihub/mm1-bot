@@ -12,9 +12,9 @@ MIDDLEMAN_ROLE_ID = 1463320834507538506
 OWNER_ROLE_ID = 1481229896092090419
 LOG_CHANNEL_ID = 1456613635752460310
 VERIFY_ROLE_ID = 1464807750847434980
-MODLOG_CHANNEL_ID=1490283073248428085
-BAN_ROLE_ID=1489576232898269314
-
+MODLOG_CHANNEL_ID= 1490283073248428085
+BAN_ROLE_ID= 1489576232898269314
+HEAD_MOD_ROLE_ID= 1481233232367452191
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -770,7 +770,206 @@ async def manageban(
         ephemeral=True
     )
 
-           
+@bot.tree.command(name="warn", description="Moderation warn system")
+@app_commands.describe(
+    action="Choose warn action",
+    user="Target user",
+    case="Case number",
+    reason="Reason"
+)
+@app_commands.choices(action=[
+    app_commands.Choice(name="Warn (warn a user)", value="warn"),
+    app_commands.Choice(name="Warnings (get a users warnings)", value="warnings"),
+    app_commands.Choice(name="Delwarn (delete a warn)", value="delwarn"),
+    app_commands.Choice(name="Clearwarn (clear all warns for the user)", value="clearwarn")
+])
+async def warn(
+    interaction: discord.Interaction,
+    action: app_commands.Choice[str],
+    user: discord.Member = None,
+    case: int = None,
+    reason: str = None
+):
+    # Admin-only check
+    if not any(role.id == HEAD_MOD_ROLE_IDfor role in interaction.user.roles):
+        await interaction.response.send_message(
+            "❌ You do not have permission to use this command.",
+            ephemeral=True
+        )
+        return
+
+    # Prevent self-warning
+    if user and user.id == interaction.user.id and action.value in ["warn", "delwarn", "clearwarn"]:
+        await interaction.response.send_message(
+            "❌ You cannot warn yourself.",
+            ephemeral=True
+        )
+        return
+
+    async with aiosqlite.connect("warns.db") as db:
+
+        # ------------------ WARN USER ------------------
+        if action.value == "warn":
+            if not user or not reason:
+                await interaction.response.send_message(
+                    "❌ You must provide a user and reason for warning.",
+                    ephemeral=True
+                )
+                return
+
+            cursor = await db.execute("SELECT COUNT(*) FROM warns")
+            count = await cursor.fetchone()
+            case_id = count[0] + 1
+
+            await db.execute(
+                "INSERT INTO warns VALUES (?, ?, ?, ?)",
+                (user.id, interaction.user.id, reason, case_id)
+            )
+            await db.commit()
+
+            embed = discord.Embed(
+                title="⚠️ User Warned",
+                color=discord.Color.orange()
+            )
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Case", value=f"#{case_id}")
+            embed.add_field(name="Moderator", value=interaction.user.mention, inline=False)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.set_footer(text="Powered by rustynickle40 bot")
+
+            log_channel = interaction.guild.get_channel(MODLOG_CHANNEL_ID)
+            if log_channel:
+                await log_channel.send(embed=embed)
+
+            await interaction.response.send_message(
+                f"✅ {user.mention} has been warned.",
+                ephemeral=True
+            )
+
+        # ------------------ SHOW WARNINGS ------------------
+        elif action.value == "warnings":
+            if not user:
+                await interaction.response.send_message(
+                    "❌ You must provide a user to check warnings.",
+                    ephemeral=True
+                )
+                return
+
+            cursor = await db.execute(
+                "SELECT case_id, reason FROM warns WHERE user_id=?",
+                (user.id,)
+            )
+            rows = await cursor.fetchall()
+
+            if not rows:
+                await interaction.response.send_message("No warnings found.", ephemeral=True)
+                return
+
+            text = ""
+            for case_id, reason_text in rows:
+                text += f"Case #{case_id}: {reason_text}\n"
+
+            embed = discord.Embed(
+                title=f"{len(rows)} warn(s) for {user}",
+                description=text,
+                color=discord.Color.blue()
+            )
+
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        # ------------------ DELETE WARN ------------------
+        elif action.value == "delwarn":
+            if not case:
+                await interaction.response.send_message(
+                    "❌ You must provide a case number to delete.",
+                    ephemeral=True
+                )
+                return
+
+            cursor = await db.execute(
+                "SELECT user_id, mod_id, reason FROM warns WHERE case_id=?",
+                (case,)
+            )
+            data = await cursor.fetchone()
+
+            if data is None:
+                await interaction.response.send_message("❌ Case not found.", ephemeral=True)
+                return
+
+            user_id, mod_id, original_reason = data
+
+            await db.execute("DELETE FROM warns WHERE case_id=?", (case,))
+            await db.commit()
+
+            embed = discord.Embed(
+                title="🗑️ Warn Removed",
+                color=discord.Color.red()
+            )
+            embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+            embed.add_field(name="Case", value=f"#{case}", inline=False)
+            embed.add_field(name="By", value=interaction.user.mention, inline=False)
+            embed.add_field(name="Original Reason", value=original_reason, inline=False)
+            embed.add_field(
+                name="Removal Reason",
+                value=reason if reason else "No reason provided",
+                inline=False
+            )
+            embed.set_footer(text="Powered by rustynickle40 bot")
+
+            log_channel = interaction.guild.get_channel(MODLOG_CHANNEL_ID)
+            if log_channel:
+                await log_channel.send(embed=embed)
+
+            await interaction.response.send_message(
+                f"✅ Warn case #{case} removed.",
+                ephemeral=True
+            )
+
+        # ------------------ CLEAR WARNS ------------------
+        elif action.value == "clearwarn":
+            if not user:
+                await interaction.response.send_message(
+                    "❌ You must provide a user to clear warns.",
+                    ephemeral=True
+                )
+                return
+
+            cursor = await db.execute(
+                "SELECT COUNT(*) FROM warns WHERE user_id=?",
+                (user.id,)
+            )
+            data = await cursor.fetchone()
+            removed = data[0]
+
+            await db.execute(
+                "DELETE FROM warns WHERE user_id=?",
+                (user.id,)
+            )
+            await db.commit()
+
+            embed = discord.Embed(
+                title="🧹 Warns Cleared",
+                color=discord.Color.green(),
+                timestamp=datetime.utcnow()
+            )
+            embed.add_field(name="User", value=user.mention, inline=False)
+            embed.add_field(name="Removed", value=str(removed), inline=False)
+            embed.add_field(name="By", value=interaction.user.mention, inline=False)
+            embed.add_field(
+                name="Clear Reason",
+                value=reason if reason else "No reason provided",
+                inline=False
+            )
+            embed.set_footer(text="Powered by rustynickle40 bot")
+
+            log_channel = interaction.guild.get_channel(MODLOG_CHANNEL_ID)
+            if log_channel:
+                await log_channel.send(embed=embed)
+
+            await interaction.response.send_message(
+                f"✅ Cleared {removed} warn(s) for {user.mention}.",
+                ephemeral=True
+            )           
 
             
 # ---------------- RUN BOT ----------------
