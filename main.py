@@ -12,6 +12,9 @@ MIDDLEMAN_ROLE_ID = 1463320834507538506
 OWNER_ROLE_ID = 1481229896092090419
 LOG_CHANNEL_ID = 1456613635752460310
 VERIFY_ROLE_ID = 1464807750847434980
+MODLOG_CHANNEL_ID=1490283073248428085
+BAN_ROLE_ID=1489576232898269314
+
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -637,7 +640,138 @@ async def verify(interaction: discord.Interaction, user: discord.Member):
         view=view
     )
 
+@bot.tree.command(name="manageban", description="Ban or unban a user")
+@app_commands.describe(
+    target="User to ban or unban",
+    action="Choose ban or unban",
+    reason="Reason",
+    evidence="Upload evidence image"
+)
+@app_commands.choices(action=[
+    app_commands.Choice(name="Ban", value="ban"),
+    app_commands.Choice(name="Unban", value="unban")
+])
+async def manageban(
+    interaction: discord.Interaction,
+    target: discord.User,
+    action: app_commands.Choice[str],
+    reason: str,
+    evidence: discord.Attachment
+):
+
+    guild = interaction.guild
+    user = interaction.user
+
+    ban_role = guild.get_role(BAN_ROLE_ID)
+    log_channel = guild.get_channel(MODLOG_CHANNEL_ID)
+
+    # must have ban role
+    if ban_role not in user.roles:
+        await interaction.response.send_message(
+            "🚫 You don't have permission to use this.",
+            ephemeral=True
+        )
+        return
+
+    # evidence must be image
+    if not evidence.content_type or not evidence.content_type.startswith("image"):
+        await interaction.response.send_message(
+            "❌ Evidence must be an image.",
+            ephemeral=True
+        )
+        return
+
+    member = guild.get_member(target.id)
+
+    # role hierarchy check
+    if member:
+
+        if member == user:
+            await interaction.response.send_message(
+                "❌ You can't ban yourself.",
+                ephemeral=True
+            )
+            return
+
+        if member.top_role >= user.top_role:
+            await interaction.response.send_message(
+                "❌ You can't ban someone with higher or equal role.",
+                ephemeral=True
+            )
+            return
+
+        if member.top_role >= guild.me.top_role:
+            await interaction.response.send_message(
+                "❌ My role is lower than the target.",
+                ephemeral=True
+            )
+            return
+
+        if member == guild.me:
+            await interaction.response.send_message(
+                "❌ I can't ban myself.",
+                ephemeral=True
+            )
+            return
+
+    # ✅ FIX: time_now added
+    time_now = datetime.now().strftime("%m/%d/%Y, %I:%M:%S %p")
+
+    # embed style
+    if action.value == "ban":
+        title = "User Banned 🚫"
+        color = discord.Color.red()
+    else:
+        title = "User Unbanned ✅"
+        color = discord.Color.green()
+
+    embed = discord.Embed(
+        title=title,
+        color=color,
+        timestamp=datetime.utcnow()
+    )
+
+    embed.add_field(name="Moderator", value=user.mention, inline=False)
+    embed.add_field(name="Target", value=f"{target} ({target.id})", inline=False)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    embed.add_field(name="Time", value=time_now, inline=False)
+
+    embed.add_field(
+        name="Evidence",
+        value=f"[{evidence.filename}]({evidence.url}) (image)",
+        inline=False
+    )
+
+    embed.set_image(url=evidence.url)
+    embed.set_footer(text="rustynickle40 bot")
+
+    # ✅ FIX: indentation
+    try:
+        if action.value == "ban":
+            if member:
+                await guild.ban(member, reason=reason)
+            else:
+                await guild.ban(discord.Object(id=target.id), reason=reason)
+        else:
+            await guild.unban(discord.Object(id=target.id))
+
+    except Exception as e:
+        await interaction.response.send_message(
+            f"Error: {e}",
+            ephemeral=True
+        )
+        return
+
+    if log_channel:
+        await log_channel.send(embed=embed)
+
+    await interaction.response.send_message(
+        f"✅ {action.value.capitalize()} done for {target}",
+        ephemeral=True
+    )
+
            
+
             
 # ---------------- RUN BOT ----------------
 
