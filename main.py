@@ -1104,7 +1104,7 @@ async def manageroles(
             TEAM_LEAD_ROLE_ID
     ]
 
-    else:
+    
         await interaction.response.send_message(
             "❌ You don't have permission.",
             ephemeral=True
