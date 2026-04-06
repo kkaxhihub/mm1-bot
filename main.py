@@ -96,42 +96,37 @@ class TicketControls(discord.ui.View):
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
     async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
-        if role not in interaction.user.roles:
-            await interaction.response.send_message(
-                "❌ Only middlemen can claim this ticket.", ephemeral=True
-            )
-            return
+    role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
+    if role not in interaction.user.roles:
+        await interaction.response.send_message("❌ Only middlemen can claim this ticket.", ephemeral=True)
+        return
 
-        # Update channel permissions
-        for member in interaction.channel.members:
-            if role in member.roles and member != interaction.user:
-                await interaction.channel.set_permissions(
-                    member, send_messages=False, view_channel=True
-                )
+    # Update perms first
+    for member in interaction.channel.members:
+        if role in member.roles and member != interaction.user:
+            await interaction.channel.set_permissions(member, send_messages=False, view_channel=True)
 
-        await interaction.channel.set_permissions(
-            interaction.user, view_channel=True, send_messages=True
-        )
+    await interaction.channel.set_permissions(interaction.user, view_channel=True, send_messages=True)
 
-        # Update button
-        button.label = "Claimed"
-        button.style = discord.ButtonStyle.gray
-        button.disabled = True
+    # Update button
+    button.label = "Claimed"
+    button.style = discord.ButtonStyle.gray
+    button.disabled = True
 
-        # Update the original message
-        embed = discord.Embed(
-            description=f"{interaction.user.mention} will be your middleman for today.",
-            color=discord.Color.green()
-        )
-        embed.set_footer(text="Powered by rustynickle40 bot")
-        await interaction.response.edit_message(view=self, embed=embed)
+    # ✅ EDIT MESSAGE as response (important!)
+    embed = discord.Embed(
+        description=f"{interaction.user.mention} will be your middleman for today.",
+        color=discord.Color.green()
+    )
+    embed.set_footer(text="Powered by rustynickle40 bot")
+    await interaction.response.edit_message(view=self, embed=embed)  # <- this line is what stops "interaction failed"
 
-        # Update topic
-        if interaction.channel.topic:
-            await interaction.channel.edit(topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}")
-        else:
-            await interaction.channel.edit(topic=f"claimed:{interaction.user.id}")
+    # Update topic AFTER responding
+    if interaction.channel.topic:
+        await interaction.channel.edit(topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}")
+    else:
+        await interaction.channel.edit(topic=f"claimed:{interaction.user.id}")
+
 
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
