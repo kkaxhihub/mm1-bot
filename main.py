@@ -95,9 +95,12 @@ class TicketControls(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
-async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
     # Defer the response so you can edit the message later
-    await interaction.response.defer()
+    await interaction.response.edit_message(
+    content="✅ Ticket claimed!",
+    view=self
+)
 
     role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
     if role not in interaction.user.roles:
@@ -127,12 +130,11 @@ async def claim_ticket(self, interaction: discord.Interaction, button: discord.u
     embed.set_footer(text="Powered by rustynickle40 bot")
 
     # Edit the original message with updated embed and button
-    await interaction.followup.edit_message(
-        message_id=interaction.message.id,
-        embed=embed,
-        view=self
-    )
-
+    await interaction.response.edit_message(
+    embed=embed,
+    view=self
+)
+     
     # Update channel topic to mark claimed
     topic_prefix = interaction.channel.topic.split("|claimed:")[0] if interaction.channel.topic else ""
     await interaction.channel.edit(topic=f"{topic_prefix}|claimed:{interaction.user.id}")
