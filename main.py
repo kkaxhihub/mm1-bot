@@ -96,7 +96,7 @@ class TicketControls(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
-async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
         role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
 
