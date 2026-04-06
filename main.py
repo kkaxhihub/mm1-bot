@@ -96,16 +96,18 @@ class TicketControls(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
-    async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
         role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
 
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                "❌ Only middlemen can claim this ticket.", ephemeral=True
+                "❌ Only middlemen can claim this ticket.",
+                ephemeral=True
             )
             return
-    await interaction.response.defer()
+
+        await interaction.response.defer()
 
         for member in interaction.guild.members:
             if role in member.roles and member != interaction.user:
@@ -125,7 +127,7 @@ class TicketControls(discord.ui.View):
         button.style = discord.ButtonStyle.gray
         button.disabled = True
 
-        await interaction.response.edit_message(view=self)
+        await interaction.message.edit(view=self)
 
         embed = discord.Embed(
             description=f"{interaction.user.mention} will be your middleman for today.",
@@ -137,10 +139,16 @@ class TicketControls(discord.ui.View):
         await interaction.followup.send(embed=embed)
 
         if interaction.channel.topic:
-            await interaction.channel.edit(topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}")
+            await interaction.channel.edit(
+                topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}"
+            )
         else:
-            await interaction.channel.edit(topic=f"claimed:{interaction.user.id}")
+            await interaction.channel.edit(
+                topic=f"claimed:{interaction.user.id}"
+            )
 
+        
+        
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
