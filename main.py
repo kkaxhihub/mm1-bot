@@ -96,6 +96,7 @@ class TicketControls(discord.ui.View):
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
     async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+    await interaction.response.defer()
         role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
         if role not in interaction.user.roles:
             await interaction.response.send_message("❌ Only middlemen can claim this ticket.", ephemeral=True)
@@ -120,7 +121,13 @@ class TicketControls(discord.ui.View):
             color=discord.Color.green()
         )
         embed.set_footer(text="Powered by rustynickle40 bot")
-        await interaction.response.edit_message(view=self, embed=embed)
+        # Send the update to the original message
+        await interaction.followup.edit_message(
+    message_id=interaction.message.id,
+    embed=embed,
+    view=self
+)
+
 
         # Update channel topic
         topic_prefix = interaction.channel.topic.split("|claimed:")[0] if interaction.channel.topic else ""
