@@ -90,12 +90,6 @@ async def save_transcript(channel, closer, guild):
 
 # ---------------- TICKET BUTTONS ----------------
 
-import discord
-from discord.ext import commands
-
-# IDs
-MIDDLEMAN_ROLE_ID = 1463320834507538506
-
 class TicketControls(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -132,20 +126,6 @@ class TicketControls(discord.ui.View):
         topic_prefix = interaction.channel.topic.split("|claimed:")[0] if interaction.channel.topic else ""
         await interaction.channel.edit(topic=f"{topic_prefix}|claimed:{interaction.user.id}")
 
-
-# Example ticket creation command
-class TicketCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command()
-    async def ticket(self, ctx):
-        embed = discord.Embed(
-            title="Ticket",
-            description="Click the button below to claim this ticket.",
-            color=discord.Color.blue()
-        )
-        await ctx.send(embed=embed, view=TicketControls())
 
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
