@@ -189,8 +189,13 @@ class TicketPanel(discord.ui.View):
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
             interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True),
             role: discord.PermissionOverwrite(view_channel=True, send_messages=False),
-            guild.me: discord.PermissionOverwrite(view_channel=True)
-        }
+            guild.me: discord.PermissionOverwrite(
+                view_channel=True,
+                send_messages=True,
+                manage_channels=True,
+                manage_permissions=True
+            )
+
 
         # Create the ticket channel
         channel = await guild.create_text_channel(
