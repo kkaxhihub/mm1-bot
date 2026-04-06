@@ -560,8 +560,6 @@ async def vouch(interaction: discord.Interaction, user: discord.Member, reason: 
 
 # ---------------- VERIFY SYSTEM ----------------
 
-MIDDLEMAN_ROLE_ID = 1463320834507538506 # replace with your middleman role id
-
 class VerifyView(discord.ui.View):
     def __init__(self, user: discord.Member):
         super().__init__(timeout=None)
