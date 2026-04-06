@@ -135,7 +135,7 @@ class TicketControls(discord.ui.View):
 
         embed.set_footer(text="Powered by rustynickle40 bot")
 
-        await interaction.followup.send(embed=embed)
+        await interaction.channel.send(embed=embed)
 
         if interaction.channel.topic:
             await interaction.channel.edit(
