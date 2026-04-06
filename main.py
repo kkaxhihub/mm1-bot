@@ -195,7 +195,7 @@ class TicketPanel(discord.ui.View):
                 manage_channels=True,
                 manage_permissions=True
             )
-
+}
 
         # Create the ticket channel
         channel = await guild.create_text_channel(
