@@ -216,7 +216,6 @@ class TicketPanel(discord.ui.View):
 @bot.event
 async def on_ready():
     bot.add_view(TicketPanel())
-    bot.add_view(TicketControls()) 
 
     async with aiosqlite.connect("warns.db") as db:
         await db.execute("""
@@ -1168,4 +1167,4 @@ async def manageroles(
 # ---------------- RUN BOT ----------------
 
 token = os.getenv("BOT_TOKEN")
-bot.run(token)
+bot.run(token) 
