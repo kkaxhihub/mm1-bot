@@ -94,58 +94,64 @@ class TicketControls(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
+    # ✅ CLAIM BUTTON
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
-async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
-    role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
+        role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
 
-    if role not in interaction.user.roles:
-        await interaction.response.send_message(
-            "❌ Only middlemen can claim this ticket.",
-            ephemeral=True
+        if role not in interaction.user.roles:
+            await interaction.response.send_message(
+                "❌ Only middlemen can claim this ticket.",
+                ephemeral=True
+            )
+            return
+
+        # Lock other middlemen
+        for member in interaction.channel.members:
+            if role in member.roles and member != interaction.user:
+                await interaction.channel.set_permissions(member, send_messages=False)
+
+        # Allow claimer
+        await interaction.channel.set_permissions(interaction.user, send_messages=True)
+
+        # Update button
+        button.label = "Claimed"
+        button.style = discord.ButtonStyle.gray
+        button.disabled = True
+
+        embed = discord.Embed(
+            description=f"{interaction.user.mention} will be your middleman for today.",
+            color=discord.Color.green()
         )
-        return
+        embed.set_footer(text="Powered by rustynickle40 bot")
 
-    # Lock other middlemen
-    for member in interaction.channel.members:
-        if role in member.roles and member != interaction.user:
-            await interaction.channel.set_permissions(member, send_messages=False)
+        # ✅ proper response (NO FAIL)
+        await interaction.response.edit_message(
+            embed=embed,
+            view=self
+        )
 
-    # Give access to claimer
-    await interaction.channel.set_permissions(interaction.user, send_messages=True)
+        # Update topic
+        topic_prefix = interaction.channel.topic.split("|claimed:")[0] if interaction.channel.topic else ""
+        await interaction.channel.edit(topic=f"{topic_prefix}|claimed:{interaction.user.id}")
 
-    # Update button
-    button.label = "Claimed"
-    button.style = discord.ButtonStyle.gray
-    button.disabled = True
-
-    embed = discord.Embed(
-        description=f"{interaction.user.mention} will be your middleman for today.",
-        color=discord.Color.green()
-    )
-    embed.set_footer(text="Powered by rustynickle40 bot")
-
-    # ✅ ONLY ONE RESPONSE (VERY IMPORTANT)
-    await interaction.response.edit_message(
-        embed=embed,
-        view=self
-    )
-
-    # Update topic
-    topic_prefix = interaction.channel.topic.split("|claimed:")[0] if interaction.channel.topic else ""
-    await interaction.channel.edit(topic=f"{topic_prefix}|claimed:{interaction.user.id}")
-
-
+    # ✅ CLOSE BUTTON (OUTSIDE CLAIM)
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+
         embed = discord.Embed(
             description="⏳ Closing ticket in 5 seconds...",
             color=discord.Color.green()
         )
         embed.set_footer(text="Powered by rustynickle40 bot")
+
         await interaction.response.send_message(embed=embed)
+
         await asyncio.sleep(5)
+
         await save_transcript(interaction.channel, interaction.user, interaction.guild)
+
         await interaction.channel.delete()
 
        
