@@ -1113,12 +1113,14 @@ async def manageroles(
             TEAM_LEAD_ROLE_ID
     ]
 
-    
+
+# ❌ No permission fallback
+    if not allowed_roles:
         await interaction.response.send_message(
-            "❌ You don't have permission.",
-            ephemeral=True
-        )
-        return
+        "❌ You don't have permission.",
+        ephemeral=True
+    )
+    return
 
     # ❌ Restrict role
     if role.id not in allowed_roles:
