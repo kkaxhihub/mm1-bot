@@ -18,7 +18,6 @@ HEAD_MOD_ROLE_ID= 1481233232367452191
 HEAD_MM_ROLE_ID = 1456998647253172256
 MM_MANAGER_ROLE_ID = 1465612905331298406
 MODERATOR_ROLE_ID = 1481233180160819261
-HEAD_MOD_ROLE_ID = 1481233232367452191
 SERVER_ADMIN_ROLE_ID = 1481233308334559253
 LEAD_COORD_ROLE_ID = 1481233350814335007
 ADMIN_ROLE_ID = 1481233452589121676
@@ -1122,10 +1121,10 @@ async def manageroles(
 # ❌ No permission fallback
     if not allowed_roles:
         await interaction.response.send_message(
-        "❌ You don't have permission.",
-        ephemeral=True
-    )
-    return
+            "❌ You don't have permission.",
+            ephemeral=True
+        )
+        return                        
 
     # ❌ Restrict role
     if role.id not in allowed_roles:
