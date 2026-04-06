@@ -101,14 +101,11 @@ class TicketControls(discord.ui.View):
 
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                "❌ Only middlemen can claim this ticket.",
-                ephemeral=True
+                "❌ Only middlemen can claim this ticket.", ephemeral=True
             )
             return
 
-        await interaction.response.defer()
-
-        for member in interaction.guild.members:
+        for member in interaction.channel.members:
             if role in member.roles and member != interaction.user:
                 await interaction.channel.set_permissions(
                     member,
@@ -126,7 +123,7 @@ class TicketControls(discord.ui.View):
         button.style = discord.ButtonStyle.gray
         button.disabled = True
 
-        await interaction.message.edit(view=self)
+        await interaction.response.edit_message(view=self)
 
         embed = discord.Embed(
             description=f"{interaction.user.mention} will be your middleman for today.",
@@ -135,19 +132,13 @@ class TicketControls(discord.ui.View):
 
         embed.set_footer(text="Powered by rustynickle40 bot")
 
-        await interaction.channel.send(embed=embed)
+        await interaction.followup.send(embed=embed)
 
         if interaction.channel.topic:
-            await interaction.channel.edit(
-                topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}"
-            )
+            await interaction.channel.edit(topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}")
         else:
-            await interaction.channel.edit(
-                topic=f"claimed:{interaction.user.id}"
-            )
+            await interaction.channel.edit(topic=f"claimed:{interaction.user.id}")
 
-        
-        
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
@@ -166,7 +157,7 @@ class TicketControls(discord.ui.View):
 
         await interaction.channel.delete()
 
-
+       
 # ---------------- PANEL BUTTON ----------------
 class TicketPanel(discord.ui.View):
     def __init__(self):
@@ -1172,7 +1163,7 @@ async def manageroles(
     )
 
     embed.set_image(url=evidence.url)
-    embed.set_footer(text="Powered by Koodas Trading Camp")
+    embed.set_footer(text="Powered by rustynickle40 bot")
 
     # 📢 Send to log channel
     log_channel = interaction.guild.get_channel(MODLOG_CHANNEL_ID)
