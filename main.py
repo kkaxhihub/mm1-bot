@@ -104,6 +104,8 @@ class TicketControls(discord.ui.View):
                 "❌ Only middlemen can claim this ticket.", ephemeral=True
             )
             return
+        await interaction.response.defer()
+
 
         for member in interaction.channel.members:
             if role in member.roles and member != interaction.user:
