@@ -95,7 +95,8 @@ class TicketControls(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
-    async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+
         role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
 
         if role not in interaction.user.roles:
@@ -104,29 +105,18 @@ class TicketControls(discord.ui.View):
             )
             return
 
-        # Remove other middlemen send perms
-        for member in interaction.channel.members:
-            if role in member.roles and member != interaction.user:
-                await interaction.channel.set_permissions(
-                    member,
-                    send_messages=False,
-                    view_channel=True
-                )
+        # Prevent interaction failed
+        await interaction.response.defer()
 
-        # Give claimer perms
-        await interaction.channel.set_permissions(
-            interaction.user,
-            view_channel=True,
-            send_messages=True
-        )
-
-        # Update button
+        # Disable button after claim
         button.label = "Claimed"
         button.style = discord.ButtonStyle.gray
         button.disabled = True
 
-        await interaction.response.edit_message(view=self)
+        # Update the message (button UI)
+        await interaction.message.edit(view=self)
 
+        # Send confirmation message
         embed = discord.Embed(
             description=f"{interaction.user.mention} will be your middleman for today.",
             color=discord.Color.green()
@@ -134,7 +124,7 @@ class TicketControls(discord.ui.View):
         embed.set_footer(text="Powered by Koodas Trading Camp")
 
         await interaction.followup.send(embed=embed)
-
+              
         # Save claim info
         if interaction.channel.topic:
             await interaction.channel.edit(
