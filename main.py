@@ -96,7 +96,6 @@ class TicketControls(discord.ui.View):
 
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green, custom_id="claim_ticket")
     async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-
         role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
 
         if role not in interaction.user.roles:
@@ -105,6 +104,7 @@ class TicketControls(discord.ui.View):
             )
             return
 
+        # Remove other middlemen send perms
         for member in interaction.channel.members:
             if role in member.roles and member != interaction.user:
                 await interaction.channel.set_permissions(
@@ -113,12 +113,14 @@ class TicketControls(discord.ui.View):
                     view_channel=True
                 )
 
+        # Give claimer perms
         await interaction.channel.set_permissions(
             interaction.user,
             view_channel=True,
             send_messages=True
         )
 
+        # Update button
         button.label = "Claimed"
         button.style = discord.ButtonStyle.gray
         button.disabled = True
@@ -129,24 +131,26 @@ class TicketControls(discord.ui.View):
             description=f"{interaction.user.mention} will be your middleman for today.",
             color=discord.Color.green()
         )
-
         embed.set_footer(text="Powered by Koodas Trading Camp")
 
         await interaction.followup.send(embed=embed)
 
+        # Save claim info
         if interaction.channel.topic:
-            await interaction.channel.edit(topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}")
+            await interaction.channel.edit(
+                topic=f"{interaction.channel.topic}|claimed:{interaction.user.id}"
+            )
         else:
-            await interaction.channel.edit(topic=f"claimed:{interaction.user.id}")
+            await interaction.channel.edit(
+                topic=f"claimed:{interaction.user.id}"
+            )
 
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-
         embed = discord.Embed(
             description="⏳ Closing ticket in 5 seconds...",
             color=discord.Color.green()
         )
-
         embed.set_footer(text="Powered by Koodas Trading Camp")
 
         await interaction.response.send_message(embed=embed)
@@ -156,8 +160,6 @@ class TicketControls(discord.ui.View):
         await save_transcript(interaction.channel, interaction.user, interaction.guild)
 
         await interaction.channel.delete()
-
-
        
 # ---------------- PANEL BUTTON ----------------
 class TicketPanel(discord.ui.View):
