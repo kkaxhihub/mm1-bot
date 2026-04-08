@@ -121,7 +121,7 @@ class TicketControls(discord.ui.View):
             description=f"{interaction.user.mention} will be your middleman for today.",
             color=discord.Color.green()
         )
-        embed.set_footer(text="Powered by Koodas Trading Camp")
+        embed.set_footer(text="Powered by rustynickle40")
 
         await interaction.followup.send(embed=embed)
               
@@ -141,7 +141,7 @@ class TicketControls(discord.ui.View):
             description="⏳ Closing ticket in 5 seconds...",
             color=discord.Color.green()
         )
-        embed.set_footer(text="Powered by Koodas Trading Camp")
+        embed.set_footer(text="Powered by rustynickle40")
 
         await interaction.response.send_message(embed=embed)
 
