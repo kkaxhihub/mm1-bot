@@ -171,7 +171,7 @@ class TicketPanel(discord.ui.View):
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
             interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True),
-            role: discord.PermissionOverwrite(view_channel=True, send_messages=False),
+            role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
             guild.me: discord.PermissionOverwrite(
                 view_channel=True,
                 send_messages=True,
