@@ -104,6 +104,20 @@ class TicketControls(discord.ui.View):
                 "❌ Only middlemen can claim this ticket.", ephemeral=True
             )
             return
+# Remove typing permission from ALL MMs
+mm_role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
+await interaction.channel.set_permissions(
+    mm_role,
+    view_channel=True,
+    send_messages=False
+)
+
+# Give typing permission ONLY to the claimer
+await interaction.channel.set_permissions(
+    interaction.user,
+    view_channel=True,
+    send_messages=True
+)
 
         # Prevent interaction failed
         await interaction.response.defer()
@@ -171,7 +185,7 @@ class TicketPanel(discord.ui.View):
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
             interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True),
-            role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+            role: discord.PermissionOverwrite(view_channel=True, send_messages=False),
             guild.me: discord.PermissionOverwrite(
                 view_channel=True,
                 send_messages=True,
