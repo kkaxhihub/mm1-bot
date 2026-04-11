@@ -104,16 +104,16 @@ class TicketControls(discord.ui.View):
                 "❌ Only middlemen can claim this ticket.", ephemeral=True
             )
             return
-# Remove typing permission from ALL MMs
+        # Remove typing permission from ALL MMs
 mm_role = interaction.guild.get_role(MIDDLEMAN_ROLE_ID)
-await interaction.channel.set_permissions(
+    await interaction.channel.set_permissions(
     mm_role,
     view_channel=True,
     send_messages=False
 )
 
-# Give typing permission ONLY to the claimer
-await interaction.channel.set_permissions(
+        # Give typing permission ONLY to the claimer
+    await interaction.channel.set_permissions(
     interaction.user,
     view_channel=True,
     send_messages=True
